@@ -41,48 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAY5XFm1Eoi7qIg_zx7HReWQwzkVTz0rN8',
-    appId: '1:738054677288:web:8ef26709faed1be197a61d',
-    messagingSenderId: '738054677288',
-    projectId: 'vesatogo-app-608bd',
-    authDomain: 'vesatogo-app-608bd.firebaseapp.com',
-    storageBucket: 'vesatogo-app-608bd.appspot.com',
-    measurementId: 'G-FV0H6160JD',
+    apiKey: 'AIzaSyCStRCdmj4eN-Dhu8Jvd5S1jto7pmyZp7k',
+    appId: '1:280299586424:web:cbd7ecec2232adfa05be8d',
+    messagingSenderId: '280299586424',
+    projectId: 'vesatogoapp-c33dc',
+    authDomain: 'vesatogoapp-c33dc.firebaseapp.com',
+    storageBucket: 'vesatogoapp-c33dc.appspot.com',
+    measurementId: 'G-V2ZDYK35SH',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBJIbnsh8SDvdelKizjuhNtrJ45dqmR7pw',
-    appId: '1:738054677288:android:2581beca58f68eb297a61d',
-    messagingSenderId: '738054677288',
-    projectId: 'vesatogo-app-608bd',
-    storageBucket: 'vesatogo-app-608bd.appspot.com',
+    apiKey: 'AIzaSyBNbw4_IfIlTfm7oE6_1b4ktvHq4RLvqAA',
+    appId: '1:280299586424:android:4ea1ec397d1ec30605be8d',
+    messagingSenderId: '280299586424',
+    projectId: 'vesatogoapp-c33dc',
+    storageBucket: 'vesatogoapp-c33dc.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyC7NkutVBYYj4oSERuwsIkul9hhSNv-8W0',
-    appId: '1:738054677288:ios:7bc51d3f686c3eb397a61d',
-    messagingSenderId: '738054677288',
-    projectId: 'vesatogo-app-608bd',
-    storageBucket: 'vesatogo-app-608bd.appspot.com',
-    iosBundleId: 'com.example.vesatogoApp',
+    apiKey: 'AIzaSyDDABeCrR1cu6jSmaIpZFoRVbC_2d1SYaM',
+    appId: '1:280299586424:ios:0e758ed313936da305be8d',
+    messagingSenderId: '280299586424',
+    projectId: 'vesatogoapp-c33dc',
+    storageBucket: 'vesatogoapp-c33dc.appspot.com',
+    iosBundleId: 'com.example.vesatogoapp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyC7NkutVBYYj4oSERuwsIkul9hhSNv-8W0',
-    appId: '1:738054677288:ios:7bc51d3f686c3eb397a61d',
-    messagingSenderId: '738054677288',
-    projectId: 'vesatogo-app-608bd',
-    storageBucket: 'vesatogo-app-608bd.appspot.com',
-    iosBundleId: 'com.example.vesatogoApp',
+    apiKey: 'AIzaSyDDABeCrR1cu6jSmaIpZFoRVbC_2d1SYaM',
+    appId: '1:280299586424:ios:0e758ed313936da305be8d',
+    messagingSenderId: '280299586424',
+    projectId: 'vesatogoapp-c33dc',
+    storageBucket: 'vesatogoapp-c33dc.appspot.com',
+    iosBundleId: 'com.example.vesatogoapp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAY5XFm1Eoi7qIg_zx7HReWQwzkVTz0rN8',
-    appId: '1:738054677288:web:b3ec7f3c1c11c1b497a61d',
-    messagingSenderId: '738054677288',
-    projectId: 'vesatogo-app-608bd',
-    authDomain: 'vesatogo-app-608bd.firebaseapp.com',
-    storageBucket: 'vesatogo-app-608bd.appspot.com',
-    measurementId: 'G-BP263JYEQX',
+    apiKey: 'AIzaSyCStRCdmj4eN-Dhu8Jvd5S1jto7pmyZp7k',
+    appId: '1:280299586424:web:31fc4d4dc88160bd05be8d',
+    messagingSenderId: '280299586424',
+    projectId: 'vesatogoapp-c33dc',
+    authDomain: 'vesatogoapp-c33dc.firebaseapp.com',
+    storageBucket: 'vesatogoapp-c33dc.appspot.com',
+    measurementId: 'G-67RH31RE81',
   );
 }

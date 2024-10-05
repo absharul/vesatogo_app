@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "280299586424",
+    "project_id": "vesatogoapp-c33dc",
+    "storage_bucket": "vesatogoapp-c33dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:280299586424:android:4ea1ec397d1ec30605be8d",
+        "android_client_info": {
+          "package_name": "com.example.vesatogoapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNbw4_IfIlTfm7oE6_1b4ktvHq4RLvqAA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
