@@ -57,7 +57,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
         data: (products) {
           return GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Number of cards per row
+              crossAxisCount: 2,
               childAspectRatio: 0.5,
               mainAxisSpacing: 2,
               crossAxisSpacing: 2

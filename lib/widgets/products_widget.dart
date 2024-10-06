@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vesatogo_app/model/products_model.dart';
 
 class ProductCard extends StatelessWidget {
@@ -10,7 +11,9 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        context.go('/productdetail/${product.id}');
+      },
       child: Container(
         width: MediaQuery.of(context).devicePixelRatio,
         decoration: BoxDecoration(
