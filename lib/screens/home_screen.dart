@@ -85,6 +85,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vesatogo_app/provider/cartdata_provider.dart';
 import 'package:vesatogo_app/provider/products_provider.dart';
 import 'package:vesatogo_app/widgets/products_widget.dart';
 import '../utils/utils.dart';
@@ -104,6 +106,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   void initState() {
     super.initState();
     ref.read(getProductsProvider.notifier).fetchProducts();
+    ref.read(cartProvider.notifier).loadCart();
   }
 
   @override
@@ -147,6 +150,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
           const SizedBox(width: 15.0),
           IconButton(
             onPressed: () {
+              context.go('/cartpage');
             },
             icon: const Icon(Icons.shopping_cart, size: 30),
             color: Colors.white,

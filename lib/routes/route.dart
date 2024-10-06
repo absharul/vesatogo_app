@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vesatogo_app/screens/cart_screen.dart';
 import 'package:vesatogo_app/screens/home_screen.dart';
 import 'package:vesatogo_app/screens/login_screen.dart';
 import 'package:vesatogo_app/widgets/product_detail_widget.dart';
@@ -25,5 +26,13 @@ final GoRouter approuter = GoRouter(
         return ProductDetailWidget(productId: int.parse(productId));
       },
     ),
+
+    GoRoute(
+      path: '/cartpage',
+      builder: (BuildContext context, GoRouterState state) {
+        return  CartPage();
+      },
+    ),
+
   ],
 );

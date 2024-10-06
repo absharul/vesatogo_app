@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:vesatogo_app/provider/product_detail_provider.dart';
 import 'package:vesatogo_app/utils/utils.dart';
 
+import '../model/cart_model.dart';
+import '../provider/cartdata_provider.dart';
+
 class ProductDetailWidget extends ConsumerStatefulWidget {
   final int productId;
 
@@ -53,7 +56,7 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
           const SizedBox(width: 15.0),
           IconButton(
             onPressed: () {
-              // Handle cart action
+              context.go('/cartpage');
             },
             icon: const Icon(Icons.shopping_cart, size: 30),
             color: Colors.white,
@@ -103,7 +106,8 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
                           decoration: containerButton,
                           child: TextButton(
                             onPressed: () {
-                              // Add to cart logic here
+                              ref.read(cartProvider.notifier).addCartItem(CartItem(productId: product.id, quantity: 1));
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to cart!')));
                             },
                             child: const Center(child: Text("Add to Cart", style: buttonText)),
                           ),

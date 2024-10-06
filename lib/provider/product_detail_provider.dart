@@ -19,7 +19,7 @@ class ProductDetailNotifier extends StateNotifier<AsyncValue<ProductsModel>> {
         final product = ProductsModel.fromJson(jsonData);
         state = AsyncValue.data(product);
       } else {
-        state = AsyncValue.error('Failed to load product', StackTrace.empty);
+        state = const AsyncValue.error('Failed to load product', StackTrace.empty);
       }
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.empty);

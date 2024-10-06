@@ -18,7 +18,7 @@ class GetProducts extends StateNotifier<AsyncValue<List<ProductsModel>>> {
         final products = jsonData.map((json) => ProductsModel.fromJson(json)).toList();
         state = AsyncValue.data(products);
       } else {
-        state = AsyncValue.error('Failed to load products', StackTrace.empty);
+        state = const AsyncValue.error('Failed to load products', StackTrace.empty);
       }
     } catch (e) {
       state = AsyncValue.error(e,StackTrace.empty);
