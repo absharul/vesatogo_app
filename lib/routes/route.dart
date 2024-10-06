@@ -8,14 +8,15 @@ final GoRouter approuter = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return const MyHomePage();
-      },
-    ),
-    GoRoute(
-      path: '/login',
-      builder: (BuildContext context, GoRouterState state) {
         return const LoginScreen();
       },
     ),
+    GoRoute(
+      path: '/homescreen',
+      builder: (BuildContext context, GoRouterState state) {
+        return const MyHomePage();
+      },
+    ),
+
   ],
 );
