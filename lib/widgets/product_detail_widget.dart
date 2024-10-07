@@ -106,7 +106,7 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
         ],
         leading: IconButton(
           onPressed: () {
-            context.go('/');
+            context.go('/homepage');
           },
           icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
@@ -147,7 +147,13 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
                           decoration: containerButton,
                           child: TextButton(
                             onPressed: () {
-                              ref.read(cartProvider.notifier).addCartItem(CartItem(productId: product.id, quantity: 1));
+                              ref.read(cartProvider.notifier).addCartItem(
+                                  CartItem(
+                                      productId: product.id,
+                                      quantity: 1,
+                                    price: product.price, // Pass price
+                                    title: product.title, // Pass title
+                                  ));
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to cart!')));
                             },
                             child: const Center(child: Text("Add to Cart", style: buttonText)),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 import 'package:vesatogo_app/utils/utils.dart';
 import '../model/cart_model.dart';
 import '../model/order_model.dart';
@@ -19,6 +20,9 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   String _address = '';
   DateTime _orderDate = DateTime.now();
 
+  final Uuid uuid = Uuid();
+
+
   double getTotalPrice(List<CartItem> cartItems) {
     double total = 0.0;
     for (var item in cartItems) {
@@ -30,7 +34,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     return total;
   }
 
-  void _showCashConfirmationDialog(List<CartItem> cartItems, double totalPrice) {
+
+  void _showCashConfirmationDialog(List<CartItem> cartItems, double totalPrice, String OrderID) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -47,8 +52,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             TextButton(
               child: const Text("Confirm"),
               onPressed: () {
-                _saveOrder("Cash", cartItems, totalPrice);
-                Navigator.of(context).pop(); // Close the dialog
+                _saveOrder("Cash", cartItems, totalPrice, OrderID);
+                context.go('/homepage'); // Close the dialog
               },
             ),
           ],
@@ -93,7 +98,6 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   final cartItem = cartItems[index];
                   final productAsyncValue =
                   ref.watch(productDetailProvider(cartItem.productId));
-
                   return productAsyncValue.when(
                     data: (product) {
                       return ListTile(
@@ -160,7 +164,8 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   onTap: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      _showCashConfirmationDialog(cartItems, totalPrice);
+                      final orderID = uuid.v4();
+                      _showCashConfirmationDialog(cartItems, totalPrice, orderID);
                     }
                   },
                   child: Container(
@@ -180,14 +185,15 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       // Create the order details to pass to the payment page
+                      final orderID = uuid.v4();
                       final order = Order(
+                        orderId: orderID,
                         name: _name,
                         address: _address,
                         paymentMethod: "Cards/UPI",
                         items: cartItems,
                         date: _orderDate.toIso8601String(),
                         totalPrice: totalPrice,
-                        productID: cartItems.isNotEmpty ? cartItems[0].productId : 0,
                       );
                       // Navigate to the payment page without saving the order
                       context.go('/cardpayment', extra: order);
@@ -213,22 +219,26 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     );
   }
 
-  void _saveOrder(String paymentMethod, List<CartItem> cartItems, double totalPrice) {
+  void _saveOrder(String paymentMethod, List<CartItem> cartItems, double totalPrice, String orderID) {
     final orderItems = cartItems.map((item) {
+      final productAsyncValue = ref.read(productDetailProvider(item.productId));
+      final product = productAsyncValue.value; // Get product details (make sure to handle loading and error states)
       return CartItem(
         productId: item.productId,
         quantity: item.quantity,
+        price: product?.price ?? 0.0, // Assuming CartItem has a price field
+        title: product?.title ?? "Unknown Product", // Add product title
       );
     }).toList();
 
     final order = Order(
+      orderId: orderID,
       name: _name,
       address: _address,
       paymentMethod: paymentMethod,
       items: orderItems,
       date: _orderDate.toIso8601String(),
       totalPrice: totalPrice,
-      productID: cartItems.isNotEmpty ? cartItems[0].productId : 0,
     );
 
     // Save the order and clear the cart
@@ -243,4 +253,5 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       );
     });
   }
+
 }

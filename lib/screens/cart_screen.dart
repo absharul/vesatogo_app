@@ -43,7 +43,7 @@ class _CartPageState extends ConsumerState<CartPage> {
         backgroundColor: appBarColor,
         leading: IconButton(
           onPressed: () {
-            context.go('/');
+            context.go('/homepage');
           },
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
         ),

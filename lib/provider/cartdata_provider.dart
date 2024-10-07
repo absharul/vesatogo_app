@@ -35,6 +35,9 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
       final updatedItem = CartItem(
         productId: existingItem.productId,
         quantity: existingItem.quantity + item.quantity,
+        price: existingItem.price, // Maintain the same price
+        title: existingItem.title, // Maintain the same title
+
       );
 
       state[existingItemIndex] = updatedItem;
@@ -58,6 +61,8 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
       final updatedItem = CartItem(
         productId: existingItem.productId,
         quantity: newQuantity,
+        price: existingItem.price, // Maintain the same price
+        title: existingItem.title, // Maintain the same title
       );
 
       // If the new quantity is zero, remove the item

@@ -22,6 +22,24 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
   String _cvv = '';
   bool _isLoading = false;
 
+  bool _isCardNumberValid(String cardNumber) {
+    // Basic Luhn algorithm for card number validation
+    int sum = 0;
+    bool isAlternate = false;
+
+    for (int i = cardNumber.length - 1; i >= 0; i--) {
+      int n = int.parse(cardNumber[i]);
+
+      if (isAlternate) {
+        n *= 2;
+        if (n > 9) n -= 9;
+      }
+      sum += n;
+      isAlternate = !isAlternate;
+    }
+    return sum % 10 == 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +49,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
         backgroundColor: Colors.blue,
         leading: IconButton(
           onPressed: () {
-            context.go('/');
+            context.go('/checkout');
           },
           icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
@@ -57,6 +75,8 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter card number';
+                    } else if (!_isCardNumberValid(value)) {
+                      return 'Invalid card number';
                     }
                     return null;
                   },
@@ -92,6 +112,8 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter expiry date';
+                          } else if (!RegExp(r'^(0[1-9]|1[0-2])\/?([0-9]{2})$').hasMatch(value)) {
+                            return 'Invalid expiry date format';
                           }
                           return null;
                         },
@@ -107,11 +129,14 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                           labelText: 'CVV',
                           border: OutlineInputBorder(),
                         ),
+                        obscureText: true, // Mask CVV input
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter CVV';
+                          } else if (value.length < 3 || value.length > 4) {
+                            return 'CVV must be 3 or 4 digits';
                           }
-                          return null; // Add CVV validation if needed
+                          return null;
                         },
                         onSaved: (value) {
                           _cvv = value!;
@@ -131,6 +156,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                         });
 
                         try {
+                          // Simulate payment processing
                           await Future.delayed(const Duration(seconds: 2));
                           await ref.read(orderProvider.notifier).saveOrder(widget.order);
                           await ref.read(cartProvider.notifier).clearCart();
@@ -140,7 +166,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                             ),
                           );
 
-                          context.go('/');
+                          context.go('/homepage');
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text('Payment failed: $e')),
@@ -165,4 +191,3 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
     );
   }
 }
-

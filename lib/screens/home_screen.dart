@@ -128,21 +128,22 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
           const SizedBox(width: 15.0),
         ],
       ),
+
       body: _selectedIndex == 0
           ? products.when(
         data: (products) {
           return GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.5,
-              mainAxisSpacing: 2,
-              crossAxisSpacing: 2,
-            ),
-            itemCount: products.length,
-            itemBuilder: (BuildContext context, index) {
-              final product = products[index];
-              return ProductCard(product: product);
-            },
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.5,
+                mainAxisSpacing: 2,
+                crossAxisSpacing: 2,
+              ),
+              itemCount: products.length,
+              itemBuilder: (BuildContext context, index) {
+                final product = products[index];
+                return ProductCard(product: product);
+              },
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -159,6 +160,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               ),
             ],
           ),
+
         ),
       )
           : _selectedIndex == 1
