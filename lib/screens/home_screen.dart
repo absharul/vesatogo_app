@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vesatogo_app/provider/cartdata_provider.dart';
 import 'package:vesatogo_app/provider/products_provider.dart';
+import 'package:vesatogo_app/screens/order_history.dart';
 import 'package:vesatogo_app/widgets/products_widget.dart';
 import '../model/cart_model.dart';
 import '../utils/utils.dart';
@@ -19,6 +20,21 @@ class MyHomePage extends ConsumerStatefulWidget {
 class _MyHomePageState extends ConsumerState<MyHomePage> {
   bool _isSearch = false;
   final TextEditingController _searchController = TextEditingController();
+
+  int _selectedIndex = 0;
+
+
+  final List<Widget> _widgetOptions = <Widget>[
+    Text('Home Screen'),
+    Text('Search Screen'),
+    OrderHistoryPage(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index; // Update the selected index
+    });
+  }
 
   @override
   void initState() {
@@ -112,7 +128,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
           const SizedBox(width: 15.0),
         ],
       ),
-      body: products.when(
+      body: _selectedIndex == 0
+          ? products.when(
         data: (products) {
           return GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -143,8 +160,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             ],
           ),
         ),
-      ),
+      )
+          : _selectedIndex == 1
+          ? const Center(child: Text('Search Screen')) // Replace with your Search Widget
+          : OrderHistoryPage(), // For the Orders tab
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex, // Set the current index
+        selectedItemColor: Colors.blue,
+        onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -155,15 +178,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             label: 'Search',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.shopping_bag_outlined),
+            label: 'Orders',
           ),
         ],
-        currentIndex: 0,
-        onTap: (index) {
-          // Add logic to handle navigation
-        },
       ),
     );
   }
+
 }
