@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vesatogo_app/provider/product_detail_provider.dart';
 import 'package:vesatogo_app/utils/utils.dart';
-
 import '../model/cart_model.dart';
 import '../provider/cartdata_provider.dart';
 
@@ -21,9 +20,20 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    ref.read(cartProvider.notifier).loadCart();
+  }
+
+  int _calculateTotalQuantity(List<CartItem> cartItems) {
+    return cartItems.fold(0, (total, item) => total + item.quantity);
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     final productAsyncValue = ref.watch(productDetailProvider(widget.productId));
-
+    final cartItems = ref.watch(cartProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -54,12 +64,43 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
             color: Colors.white,
           ),
           const SizedBox(width: 15.0),
-          IconButton(
-            onPressed: () {
-              context.go('/cartpage');
-            },
-            icon: const Icon(Icons.shopping_cart, size: 30),
-            color: Colors.white,
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                onPressed: () {
+                  context.go('/cartpage');
+                },
+                icon: const Icon(Icons.shopping_cart, size: 30),
+                color: Colors.white,
+              ),
+              if (cartItems.isNotEmpty)
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${_calculateTotalQuantity(cartItems)}', // Total quantity of items
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(width: 15.0),
         ],
