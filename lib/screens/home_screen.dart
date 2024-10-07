@@ -32,7 +32,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index; // Update the selected index
+      _selectedIndex = index;
     });
   }
 
@@ -162,10 +162,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
         ),
       )
           : _selectedIndex == 1
-          ? const Center(child: Text('Search Screen')) // Replace with your Search Widget
-          : OrderHistoryPage(), // For the Orders tab
+          ? const Center(child: Text('Search Screen'))
+          : OrderHistoryPage(),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, // Set the current index
+        currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
         onTap: _onItemTapped,
         items: const [

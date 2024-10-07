@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../provider/order_provder.dart'; // Adjust the path as needed
 
 class OrderHistoryPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Fetch the list of orders from the OrderProvider
     final orders = ref.watch(orderProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Order History"),
+        title: const Text("Order History",style: TextStyle(fontWeight: FontWeight.w500),),
         centerTitle: true,
       ),
       body: orders.isEmpty
@@ -19,21 +19,40 @@ class OrderHistoryPage extends ConsumerWidget {
         itemCount: orders.length,
         itemBuilder: (context, index) {
           final order = orders[index];
+
+          final DateFormat formatter = DateFormat('dd/MM/yyyy HH:mm a'); // Change format as needed
+          final String formattedDate = formatter.format(DateTime.parse(order.date));
+          print("Product id: ${order.productID}");
           return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: ListTile(
-              title: Text(order.name),
-              subtitle: Text("Total: \$${order.totalPrice.toStringAsFixed(2)}"),
-              trailing: Text(order.paymentMethod),
-              onTap: () {
-                // Navigate to order details page if needed
-                // You can pass the order details to another page
-                // context.go('/orderDetails', extra: order);
-              },
-            ),
+            child: Container(
+              height: 150,
+              width: double.maxFinite,
+              child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                        children: [
+                          Text(order.name, style: const TextStyle(fontSize: 25.0,fontWeight: FontWeight.w500),),
+                          const Expanded(child: SizedBox()),
+                          Text("\$${order.totalPrice.toStringAsFixed(2)}",style: const TextStyle(fontSize: 25.0, fontWeight: FontWeight.w600),),
+                          const SizedBox(width: 10.0,)
+                        ]),
+                        Text("Address: ${order.address}",style: const TextStyle(fontSize: 18.0,fontWeight: FontWeight.w400),),
+                        Text("Payment Method: ${order.paymentMethod}",style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w400),),
+                        Text(
+                          "Order Date: $formattedDate",
+                          style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w400),
+                        ),
+                      ],
+                    ),
+                  ),
+              ),
           );
         },
       ),
     );
   }
 }
+

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vesatogo_app/utils/utils.dart';
 import '../model/cart_model.dart';
-import '../model/order_model.dart'; // Ensure to import your Order model
+import '../model/order_model.dart';
 import '../provider/cartdata_provider.dart';
 import '../provider/order_provder.dart';
 import '../provider/product_detail_provider.dart';
@@ -17,6 +17,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   final _formKey = GlobalKey<FormState>();
   String _name = '';
   String _address = '';
+  DateTime _orderDate = DateTime.now();
 
   double getTotalPrice(List<CartItem> cartItems) {
     double total = 0.0;
@@ -29,6 +30,33 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     return total;
   }
 
+  void _showCashConfirmationDialog(List<CartItem> cartItems, double totalPrice) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Order"),
+          content: Text("Do you want to place the order for \$${totalPrice.toStringAsFixed(2)}?"),
+          actions: [
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            TextButton(
+              child: const Text("Confirm"),
+              onPressed: () {
+                _saveOrder("Cash", cartItems, totalPrice);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
@@ -36,14 +64,14 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Checkout", style: appBarStyleText),
+        title: const Text("Checkout",style: appBarStyleText,),
         centerTitle: true,
         backgroundColor: appBarColor,
         leading: IconButton(
           onPressed: () {
             context.go('/cartpage');
           },
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 30),
         ),
       ),
       body: cartItems.isEmpty
@@ -132,15 +160,18 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   onTap: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      _saveOrder("Cash", cartItems, totalPrice);
+                      _showCashConfirmationDialog(cartItems, totalPrice);
                     }
                   },
                   child: Container(
                     height: 40,
                     width: 150,
-                    decoration: containerButton,
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: const Center(
-                      child: Text("Cash", style: buttonText),
+                      child: Text("Cash", style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),
@@ -148,16 +179,29 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   onTap: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      _saveOrder("Cards/UPI", cartItems, totalPrice);
-                      context.go('/cardpayment');
+                      // Create the order details to pass to the payment page
+                      final order = Order(
+                        name: _name,
+                        address: _address,
+                        paymentMethod: "Cards/UPI",
+                        items: cartItems,
+                        date: _orderDate.toIso8601String(),
+                        totalPrice: totalPrice,
+                        productID: cartItems.isNotEmpty ? cartItems[0].productId : 0,
+                      );
+                      // Navigate to the payment page without saving the order
+                      context.go('/cardpayment', extra: order);
                     }
                   },
                   child: Container(
                     height: 40,
                     width: 150,
-                    decoration: containerButton,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: const Center(
-                      child: Text("Cards/UPI", style: buttonText),
+                      child: Text("Cards/UPI", style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ),
@@ -170,39 +214,33 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   }
 
   void _saveOrder(String paymentMethod, List<CartItem> cartItems, double totalPrice) {
-    // Create the order using CartItems
+    final orderItems = cartItems.map((item) {
+      return CartItem(
+        productId: item.productId,
+        quantity: item.quantity,
+      );
+    }).toList();
+
     final order = Order(
       name: _name,
       address: _address,
       paymentMethod: paymentMethod,
-      items: cartItems, // Directly use the CartItem list
+      items: orderItems,
+      date: _orderDate.toIso8601String(),
       totalPrice: totalPrice,
+      productID: cartItems.isNotEmpty ? cartItems[0].productId : 0,
     );
 
-    // Save the order using the OrderProvider
+    // Save the order and clear the cart
     ref.read(orderProvider.notifier).saveOrder(order).then((_) {
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Order placed for $_name at $_address')),
-      );
-
-      // Clear cart after checkout
       ref.read(cartProvider.notifier).clearCart();
-
-      // Delay navigation to ensure the state is updated
-      Future.delayed(Duration(seconds: 1), () {
-        if (paymentMethod == "Cards/UPI") {
-          context.go('/cardpayment');
-        } else {
-          Navigator.pop(context); // Go back to the previous page
-        }
-      });
-    }).catchError((error) {
-      // Handle any errors that occur during saving
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to place order: $error')),
+        const SnackBar(content: Text('Order placed successfully!')),
+      );
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to place order: ${error.toString()}')),
       );
     });
   }
-
 }

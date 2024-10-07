@@ -1,11 +1,15 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../model/order_model.dart'; // Import your Order model
+import '../provider/cartdata_provider.dart';
 import '../provider/order_provder.dart';
 
 class PaymentGatewayPage extends ConsumerStatefulWidget {
+  final Order order;
+
+  PaymentGatewayPage({Key? key, required this.order}) : super(key: key);
+
   @override
   _PaymentGatewayPageState createState() => _PaymentGatewayPageState();
 }
@@ -16,6 +20,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
   String _cardHolderName = '';
   String _expiryDate = '';
   String _cvv = '';
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +31,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
         backgroundColor: Colors.blue,
         leading: IconButton(
           onPressed: () {
-            context.go('/'); // Navigate back to the home page
+            context.go('/');
           },
           icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
@@ -106,7 +111,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter CVV';
                           }
-                          return null;
+                          return null; // Add CVV validation if needed
                         },
                         onSaved: (value) {
                           _cvv = value!;
@@ -118,33 +123,38 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                 const SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: _isLoading ? null : () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
+                        setState(() {
+                          _isLoading = true;
+                        });
 
-                        // Simulate payment process
-                        final order = Order(
-                          name: 'Customer Name', // Replace with actual customer name
-                          address: 'Customer Address', // Replace with actual address
-                          paymentMethod: 'Card',
-                          items: [], // Populate with ordered items
-                          totalPrice: 0.0, // Set total price based on cart
-                        );
+                        try {
+                          await Future.delayed(const Duration(seconds: 2));
+                          await ref.read(orderProvider.notifier).saveOrder(widget.order);
+                          await ref.read(cartProvider.notifier).clearCart();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Payment successful for $_cardHolderName'),
+                            ),
+                          );
 
-                        // Save the order using OrderProvider
-                        ref.read(orderProvider.notifier).saveOrder(order);
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Payment successful for $_cardHolderName'),
-                          ),
-                        );
-
-                        // Optionally, navigate to a success page or back to home
-                        context.go('/');
+                          context.go('/');
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Payment failed: $e')),
+                          );
+                        } finally {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
                       }
                     },
-                    child: const Text("Pay Now"),
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text("Pay Now"),
                   ),
                 ),
               ],
@@ -155,3 +165,4 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
     );
   }
 }
+

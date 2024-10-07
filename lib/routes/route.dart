@@ -7,6 +7,8 @@ import 'package:vesatogo_app/screens/login_screen.dart';
 import 'package:vesatogo_app/screens/payments_cards.dart';
 import 'package:vesatogo_app/widgets/product_detail_widget.dart';
 
+import '../model/order_model.dart';
+
 final GoRouter approuter = GoRouter(
   routes: <RouteBase>[
     // GoRoute(
@@ -22,9 +24,9 @@ final GoRouter approuter = GoRouter(
       },
     ),
     GoRoute(
-      path: '/productdetail/:productId', // Define a route with a productId parameter
+      path: '/productdetail/:productId',
       builder: (BuildContext context, GoRouterState state) {
-        final String productId = state.pathParameters['productId']!; // Use 'productId' here
+        final String productId = state.pathParameters['productId']!;
         return ProductDetailWidget(productId: int.parse(productId));
       },
     ),
@@ -44,7 +46,8 @@ final GoRouter approuter = GoRouter(
     GoRoute(
       path: '/cardpayment',
       builder: (BuildContext context, GoRouterState state) {
-        return  PaymentGatewayPage();
+        final order = state.extra as Order;
+        return PaymentGatewayPage(order: order);
       },
     ),
 
