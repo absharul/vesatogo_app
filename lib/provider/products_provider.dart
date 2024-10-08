@@ -12,13 +12,17 @@ final getProductsProvider = StateNotifierProvider<GetProducts, AsyncValue<List<P
 class GetProducts extends StateNotifier<AsyncValue<List<ProductsModel>>> {
   GetProducts() : super(const AsyncValue.loading());
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts(String? searchText) async {
     try {
       final response = await http.get(Uri.parse('https://fakestoreapi.com/products'));
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        final products = jsonData.map((json) => ProductsModel.fromJson(json)).toList();
-        state = AsyncValue.data(products);
+        List<ProductsModel> products = jsonData.map((json) => ProductsModel.fromJson(json)).toList();
+        List<ProductsModel> filteredProducts = searchText != null && searchText.isNotEmpty
+            ? products.where((product) => product.title.toLowerCase().contains(searchText.toLowerCase())).toList()
+            : products;
+
+        state = AsyncValue.data(filteredProducts);
       } else {
         state = const AsyncValue.error('Failed to load products', StackTrace.empty);
       }

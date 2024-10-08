@@ -79,8 +79,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Center(
                     child: _isLoading
                         ? const SizedBox(
-                      width: 25.0, // Set the desired width
-                      height: 25.0, // Set the desired height
+                      width: 25.0,
+                      height: 25.0,
                       child: CircularProgressIndicator(color: Colors.white,),
                     )
                         : const Text('Login', style: buttonText),
@@ -94,7 +94,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const Text("Don't have an account? "),
                   TextButton(
                     onPressed: () {
-                      context.go('/signup'); // Navigate to Sign Up page
+                      context.go('/signup');
                     },
                     child: const Text("Sign Up"),
                   ),
@@ -121,7 +121,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       _emailController.clear();
       _passwordController.clear();
-      context.go('/homepage'); // Navigate to homepage
+      context.go('/homepage');
     } on FirebaseAuthException catch (e) {
       _handleAuthException(e);
     } catch (e) {
@@ -130,7 +130,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     } finally {
       setState(() {
-        _isLoading = false; // Reset loading state
+        _isLoading = false;
       });
     }
   }

@@ -1,16 +1,14 @@
 import 'cart_model.dart';
 
 class Order {
-  final String orderId; // New property for Order ID
   final String name;
   final String address;
   final String paymentMethod;
   final List<CartItem> items;
   final double totalPrice;
-  final String date; // Date property
+  final String date;
 
   Order({
-    required this.orderId, // Update constructor
     required this.name,
     required this.address,
     required this.paymentMethod,
@@ -21,7 +19,6 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      orderId: json['orderId'], // Include orderId here
       name: json['name'],
       address: json['address'],
       paymentMethod: json['paymentMethod'],
@@ -33,7 +30,6 @@ class Order {
 
   Map<String, dynamic> toJson() {
     return {
-      'orderId': orderId, // Include orderId here
       'name': name,
       'address': address,
       'paymentMethod': paymentMethod,

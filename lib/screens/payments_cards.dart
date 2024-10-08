@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../model/order_model.dart'; // Import your Order model
+import 'package:vesatogo_app/utils/utils.dart';
+import '../model/order_model.dart';
 import '../provider/cartdata_provider.dart';
 import '../provider/order_provder.dart';
 
@@ -22,14 +23,12 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
   String _cvv = '';
   bool _isLoading = false;
 
-  bool _isCardNumberValid(String cardNumber) {
-    // Basic Luhn algorithm for card number validation
+  bool _isCardNumberValid(String cardNumber) {            // Luhn algorithm for card validation
     int sum = 0;
     bool isAlternate = false;
 
     for (int i = cardNumber.length - 1; i >= 0; i--) {
       int n = int.parse(cardNumber[i]);
-
       if (isAlternate) {
         n *= 2;
         if (n > 9) n -= 9;
@@ -44,9 +43,9 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Payment Gateway"),
+        title: const Text("Payment Gateway", style: appBarStyleText,),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: appBarColor,
         leading: IconButton(
           onPressed: () {
             context.go('/checkout');
@@ -129,7 +128,7 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                           labelText: 'CVV',
                           border: OutlineInputBorder(),
                         ),
-                        obscureText: true, // Mask CVV input
+                        obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please enter CVV';
@@ -147,41 +146,50 @@ class _PaymentGatewayPageState extends ConsumerState<PaymentGatewayPage> {
                 ),
                 const SizedBox(height: 20),
                 Center(
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : () async {
-                      if (_formKey.currentState!.validate()) {
+                  child: InkWell(
+                    onTap: _isLoading ? null : () async {
+                      if(_formKey.currentState!.validate()){
                         _formKey.currentState!.save();
                         setState(() {
                           _isLoading = true;
                         });
+                      }
+                      try {                                                          // payment processing
+                        await Future.delayed(const Duration(seconds: 2));
+                        await ref.read(orderProvider.notifier).saveOrder(widget.order);
+                        await ref.read(cartProvider.notifier).clearCart();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Payment successful for $_cardHolderName'),
+                          ),
+                        );
 
-                        try {
-                          // Simulate payment processing
-                          await Future.delayed(const Duration(seconds: 2));
-                          await ref.read(orderProvider.notifier).saveOrder(widget.order);
-                          await ref.read(cartProvider.notifier).clearCart();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Payment successful for $_cardHolderName'),
-                            ),
-                          );
-
-                          context.go('/homepage');
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Payment failed: $e')),
-                          );
-                        } finally {
-                          setState(() {
-                            _isLoading = false;
-                          });
-                        }
+                        context.go('/homepage');
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Payment failed: $e')),
+                        );
+                      } finally {
+                        setState(() {
+                          _isLoading = false;
+                        });
                       }
                     },
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text("Pay Now"),
-                  ),
+                    child: Container(
+                      height: 40,
+                      width: 150,
+                      decoration: containerButton,
+                      child:  Center(
+                        child: _isLoading
+                            ? const SizedBox(
+                          width: 25.0,
+                          height: 25.0,
+                          child: CircularProgressIndicator(color: Colors.white,),
+                        )
+                            : const Text('Login', style: buttonText),
+                      ),
+                    ),
+                  )
                 ),
               ],
             ),

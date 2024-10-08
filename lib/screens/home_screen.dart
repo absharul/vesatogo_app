@@ -22,16 +22,8 @@ class MyHomePage extends ConsumerStatefulWidget {
 class _MyHomePageState extends ConsumerState<MyHomePage> {
   bool _isSearch = false;
   final TextEditingController _searchController = TextEditingController();
-
   int _selectedIndex = 0;
-  String? _selectedCategory = "";
-
-
-  final List<Widget> _widgetOptions = <Widget>[
-    const Text('Home Screen'),
-    OrderHistoryPage(),
-    const UserTab(),
-  ];
+  String? _selectedCategory;
 
   final List<String> _categories = [
     'Electronics',
@@ -48,14 +40,14 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
 
   void _onCategorySelected(String? category) {
     setState(() {
-      _selectedCategory = category; // Update the selected category
+      _selectedCategory = category == "Show All"? null : category;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    ref.read(getProductsProvider.notifier).fetchProducts();
+    ref.read(getProductsProvider.notifier).fetchProducts(_searchController.text.trim());
     ref.read(cartProvider.notifier).loadCart();
   }
 
@@ -71,10 +63,10 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final products = ref.watch(getProductsProvider);
-    // final products = _selectedCategory != null
-    //     ? ref.watch(filterProductProvider(_selectedCategory!)) // Watch filtered products
-    //     : ref.watch(getProductsProvider); // Watch all products
+    final products = _selectedCategory != null
+        ? ref.watch(filterProductProvider(_selectedCategory!))
+        : ref.watch(getProductsProvider);
+
     final cartItems = ref.watch(cartProvider);
 
     return Scaffold(
@@ -88,7 +80,15 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               child: SizedBox(
                 height: 40,
                 width: MediaQuery.of(context).size.width * 0.5,
-                child: const SearchBar(
+                child: SearchBar(
+                  onChanged: (value){
+                    _searchController.text = value;
+                    if(value.length > 4 || value.isEmpty) {
+                      ref.read(getProductsProvider.notifier).fetchProducts(
+                          _searchController.text
+                              .trim());   // Retry fetching products
+                    }
+                  },
                   hintText: 'Search',
                 ),
               ),
@@ -98,7 +98,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               setState(() {
                 _isSearch = !_isSearch;
                 if (!_isSearch) {
-                  _searchController.clear(); // Clear search on close
+                  _searchController.clear();
                 }
               });
             },
@@ -115,7 +115,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                 );
               }).toList()..add(
                 const PopupMenuItem<String>(
-                  value: null,
+                  value: "Show All",
                   child: Text('Show All'),
                 ),
               );
@@ -148,7 +148,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
                     ),
                     child: Center(
                       child: Text(
-                        '${_calculateTotalQuantity(cartItems)}', // Total quantity of items
+                        '${_calculateTotalQuantity(cartItems)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -188,7 +188,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
               Text('Error: $error'),
               TextButton(
                 onPressed: () {
-                  ref.read(getProductsProvider.notifier).fetchProducts(); // Retry fetching products
+                  ref.read(getProductsProvider.notifier).fetchProducts(_searchController.text.trim());
                 },
                 child: const Text('Retry'),
               ),

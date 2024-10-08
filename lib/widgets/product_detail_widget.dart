@@ -29,7 +29,6 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
     return cartItems.fold(0, (total, item) => total + item.quantity);
   }
 
-
   @override
   Widget build(BuildContext context) {
     final productAsyncValue = ref.watch(productDetailProvider(widget.productId));
@@ -56,7 +55,7 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
               setState(() {
                 _isSearch = !_isSearch;
                 if (!_isSearch) {
-                  _searchController.clear(); // Clear search on close
+                  _searchController.clear();
                 }
               });
             },
@@ -90,7 +89,7 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
                     ),
                     child: Center(
                       child: Text(
-                        '${_calculateTotalQuantity(cartItems)}', // Total quantity of items
+                        '${_calculateTotalQuantity(cartItems)}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -151,8 +150,8 @@ class _ProductDetailWidgetState extends ConsumerState<ProductDetailWidget> {
                                   CartItem(
                                       productId: product.id,
                                       quantity: 1,
-                                    price: product.price, // Pass price
-                                    title: product.title, // Pass title
+                                    price: product.price,
+                                    title: product.title,
                                   ));
                               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to cart!')));
                             },

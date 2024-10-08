@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uuid/uuid.dart';
 import 'package:vesatogo_app/utils/utils.dart';
 import '../model/cart_model.dart';
 import '../model/order_model.dart';
@@ -20,9 +19,6 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
   String _address = '';
   DateTime _orderDate = DateTime.now();
 
-  final Uuid uuid = Uuid();
-
-
   double getTotalPrice(List<CartItem> cartItems) {
     double total = 0.0;
     for (var item in cartItems) {
@@ -34,8 +30,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     return total;
   }
 
-
-  void _showCashConfirmationDialog(List<CartItem> cartItems, double totalPrice, String OrderID) {
+  void _showCashConfirmationDialog(List<CartItem> cartItems, double totalPrice) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -46,14 +41,14 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
             TextButton(
               child: const Text("Cancel"),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
             ),
             TextButton(
               child: const Text("Confirm"),
               onPressed: () {
-                _saveOrder("Cash", cartItems, totalPrice, OrderID);
-                context.go('/homepage'); // Close the dialog
+                _saveOrder("Cash", cartItems, totalPrice);
+                context.go('/homepage');
               },
             ),
           ],
@@ -64,6 +59,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+
     final cartItems = ref.watch(cartProvider);
     final totalPrice = getTotalPrice(cartItems);
 
@@ -164,8 +160,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   onTap: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      final orderID = uuid.v4();
-                      _showCashConfirmationDialog(cartItems, totalPrice, orderID);
+                      _showCashConfirmationDialog(cartItems, totalPrice);
                     }
                   },
                   child: Container(
@@ -184,10 +179,7 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                   onTap: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
-                      // Create the order details to pass to the payment page
-                      final orderID = uuid.v4();
                       final order = Order(
-                        orderId: orderID,
                         name: _name,
                         address: _address,
                         paymentMethod: "Cards/UPI",
@@ -195,7 +187,6 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
                         date: _orderDate.toIso8601String(),
                         totalPrice: totalPrice,
                       );
-                      // Navigate to the payment page without saving the order
                       context.go('/cardpayment', extra: order);
                     }
                   },
@@ -219,20 +210,19 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
     );
   }
 
-  void _saveOrder(String paymentMethod, List<CartItem> cartItems, double totalPrice, String orderID) {
+  void _saveOrder(String paymentMethod, List<CartItem> cartItems, double totalPrice) {
     final orderItems = cartItems.map((item) {
       final productAsyncValue = ref.read(productDetailProvider(item.productId));
-      final product = productAsyncValue.value; // Get product details (make sure to handle loading and error states)
+      final product = productAsyncValue.value;
       return CartItem(
         productId: item.productId,
         quantity: item.quantity,
-        price: product?.price ?? 0.0, // Assuming CartItem has a price field
-        title: product?.title ?? "Unknown Product", // Add product title
+        price: product?.price ?? 0.0,
+        title: product?.title ?? "Unknown Product",
       );
     }).toList();
 
     final order = Order(
-      orderId: orderID,
       name: _name,
       address: _address,
       paymentMethod: paymentMethod,
@@ -241,7 +231,6 @@ class _CheckoutPageState extends ConsumerState<CheckoutPage> {
       totalPrice: totalPrice,
     );
 
-    // Save the order and clear the cart
     ref.read(orderProvider.notifier).saveOrder(order).then((_) {
       ref.read(cartProvider.notifier).clearCart();
       ScaffoldMessenger.of(context).showSnackBar(

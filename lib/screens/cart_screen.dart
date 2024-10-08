@@ -60,7 +60,7 @@ class _CartPageState extends ConsumerState<CartPage> {
             data: (product) {
               return Card(
                 margin: const EdgeInsets.all(8.0),
-                child: Container(
+                child: SizedBox(
                   height: 180,
                   width: double.infinity,
                   child: Row(
@@ -103,11 +103,9 @@ class _CartPageState extends ConsumerState<CartPage> {
                                     GestureDetector(
                                       onTap: () {
                                         if (localQuantities[cartItem.productId]! > 1) {
-                                          // Update locally
                                           setState(() {
                                             localQuantities[cartItem.productId] = localQuantities[cartItem.productId]! - 1;
                                           });
-                                          // Update in provider
                                           ref.read(cartProvider.notifier).updateQuantity(
                                             cartItem.productId,
                                             localQuantities[cartItem.productId]!,
@@ -145,11 +143,9 @@ class _CartPageState extends ConsumerState<CartPage> {
                                     const SizedBox(width: 20),
                                     GestureDetector(
                                       onTap: () {
-                                        // Update locally
                                         setState(() {
                                           localQuantities[cartItem.productId] = localQuantities[cartItem.productId]! + 1;
                                         });
-                                        // Update in provider
                                         ref.read(cartProvider.notifier).updateQuantity(
                                           cartItem.productId,
                                           localQuantities[cartItem.productId]!,

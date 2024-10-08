@@ -79,8 +79,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   child: Center(
                     child: _isLoading
                         ? const SizedBox(
-                      width: 25.0, // Set the desired width
-                      height: 25.0, // Set the desired height
+                                 width: 25.0,
+                                 height: 25.0,
                       child: CircularProgressIndicator(color: Colors.white,),
                          )
                         : const Text('Sign Up', style: buttonText),
@@ -94,7 +94,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   const Text("Already have an account? "),
                   TextButton(
                     onPressed: () {
-                      context.go('/'); // Navigate back to login
+                      context.go('/login');
                     },
                     child: const Text("Login"),
                   ),
@@ -124,8 +124,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sign up successful! Navigating...')),
       );
-      await Future.delayed(const Duration(seconds: 1)); // Delay for message visibility
-      context.go('/homepage'); // Navigate to homepage
+      await Future.delayed(const Duration(seconds: 1));
+      context.go('/homepage');
     } on FirebaseAuthException catch (e) {
       _handleAuthException(e);
     } catch (e) {
@@ -134,7 +134,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       );
     } finally {
       setState(() {
-        _isLoading = false; // Reset loading state
+        _isLoading = false; //
       });
     }
   }

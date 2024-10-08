@@ -1,8 +1,8 @@
 class CartItem {
   final int productId;
   final int quantity;
-  final double price; // Add price
-  final String title; // Add product title
+  final double price;
+  final String title;
 
   CartItem({
     required this.productId,
@@ -24,8 +24,8 @@ class CartItem {
     return CartItem(
       productId: json['productId'],
       quantity: json['quantity'],
-      price: json['price'], // Deserialize price
-      title: json['title'], // Deserialize title
+      price: json['price'],
+      title: json['title'],
     );
   }
 }

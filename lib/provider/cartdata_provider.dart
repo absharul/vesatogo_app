@@ -18,12 +18,12 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     final String? cartJson = prefs.getString('cart');
 
     if (cartJson != null && cartJson.isNotEmpty) {
-      print('Loading cart data: $cartJson'); // Debugging statement
+      print('Loading cart data: $cartJson');
       final List<dynamic> decodedData = jsonDecode(cartJson);
       state = decodedData.map((item) => CartItem.fromJson(item)).toList();
-      print('Loaded cart items: $state'); // Debugging statement
+      print('Loaded cart items: $state');
     } else {
-      print('No cart data found.'); // Debugging statement
+      print('No cart data found.');
     }
   }
 
@@ -35,8 +35,8 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
       final updatedItem = CartItem(
         productId: existingItem.productId,
         quantity: existingItem.quantity + item.quantity,
-        price: existingItem.price, // Maintain the same price
-        title: existingItem.title, // Maintain the same title
+        price: existingItem.price,
+        title: existingItem.title,
 
       );
 
@@ -61,11 +61,11 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
       final updatedItem = CartItem(
         productId: existingItem.productId,
         quantity: newQuantity,
-        price: existingItem.price, // Maintain the same price
-        title: existingItem.title, // Maintain the same title
+        price: existingItem.price,
+        title: existingItem.title,
       );
 
-      // If the new quantity is zero, remove the item
+
       if (newQuantity <= 0) {
         removeItem(productId);
       } else {
@@ -78,7 +78,7 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
   Future<void> saveCart() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final List<Map<String, dynamic>> cartJsonList = state.map((item) => item.toJson()).toList();
-    await prefs.setString('cart', jsonEncode(cartJsonList)); // Store as a JSON string
+    await prefs.setString('cart', jsonEncode(cartJsonList));
   }
 
   Future<void> clearCart() async {

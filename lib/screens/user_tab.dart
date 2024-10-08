@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:vesatogo_app/provider/auth_provider.dart';
-
 import '../utils/utils.dart';
 
 class UserTab extends ConsumerStatefulWidget {
@@ -19,9 +18,9 @@ class _UserTabState extends ConsumerState<UserTab> {
     return Scaffold(
      body: Center(
        child: InkWell(
-         onTap: () async {
-           await ref.watch(authProvider.notifier).signOut();
-           context.go('/');
+         onTap: () {
+           ref.watch(authProvider.notifier).signOut();
+           SystemNavigator.pop();
          },
          child: Container(
            height: 50,
