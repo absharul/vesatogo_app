@@ -7,6 +7,8 @@ final getProductsProvider = StateNotifierProvider<GetProducts, AsyncValue<List<P
   return GetProducts();
 });
 
+
+
 class GetProducts extends StateNotifier<AsyncValue<List<ProductsModel>>> {
   GetProducts() : super(const AsyncValue.loading());
 

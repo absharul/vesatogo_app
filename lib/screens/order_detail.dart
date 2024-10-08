@@ -27,27 +27,51 @@ class OrderDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Shipping Address: ${order.address}", style: TextStyle(fontSize: 18)),
-            SizedBox(height: 10),
-            Text("Payment Method: ${order.paymentMethod}", style: TextStyle(fontSize: 18)),
-            SizedBox(height: 20),
-            const Text("Products:", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: order.items.length,
-                itemBuilder: (context, index) {
-                  final item = order.items[index];
-                  return ListTile(
-                    title: Text(item.title), // Product name
-                    subtitle: Text("Quantity: ${item.quantity}"),
-                    trailing: Text("\$${(item.price * item.quantity).toStringAsFixed(2)}"), // Total for each product
-                  );
-                },
+            Container(
+              width: double.maxFinite,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.black
+                )
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Shipping Address: ${order.address}", style: const TextStyle(fontSize: 18)),
+                    const SizedBox(height: 10),
+                    Text("Payment Method: ${order.paymentMethod}", style: const TextStyle(fontSize: 18)),
+                  ],
+                ),
               ),
             ),
+
             const SizedBox(height: 20),
-            Text("Grand Total: \$${order.totalPrice.toStringAsFixed(2)}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const Text("Products:", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Container(
+              width: double.maxFinite,
+              height: 300,
+              decoration: BoxDecoration(
+                  border: Border.all(
+                      color: Colors.black
+                  )
+              ),
+              child: ListView.builder(
+                  itemCount: order.items.length,
+                  itemBuilder: (context, index) {
+                    final item = order.items[index];
+                    return ListTile(
+                      title: Text(item.title), // Product name
+                      subtitle: Text("Quantity: ${item.quantity}"),
+                      trailing: Text("\$${(item.price * item.quantity).toStringAsFixed(2)}"), // Total for each product
+                    );
+                  },
+                ),
+            ),
+            const SizedBox(height: 20),
+            Center(child: Text("Grand Total: \$${order.totalPrice.toStringAsFixed(2)}", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
           ],
         ),
       ),

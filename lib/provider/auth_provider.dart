@@ -9,9 +9,9 @@ class AuthNotifier extends StateNotifier<User?> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   AuthNotifier() : super(null) {
-    _auth.authStateChanges().listen((User? user) {
-      state = user;
-    });
+      _auth.authStateChanges().listen((User? user) {
+        state = user;
+      });
   }
 
   Future<void> signIn(String email, String password) async {

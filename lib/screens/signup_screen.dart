@@ -15,7 +15,9 @@ class SignUpScreen extends ConsumerStatefulWidget {
 class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -27,105 +29,128 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 150.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 15.0),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20.0),
-            InkWell(
-              onTap: _isLoading ? null : () async {
-                if (_isLoading) return; // Prevent multiple taps
-
-                String email = _emailController.text.trim();
-                String password = _passwordController.text.trim();
-
-                if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a valid email.')),
-                  );
-                  return;
-                }
-                if (password.length < 6) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Password must be at least 6 characters.')),
-                  );
-                  return;
-                }
-
-                setState(() {
-                  _isLoading = true;
-                });
-
-                try {
-                  await ref.read(authProvider.notifier).signUp(email, password);
-                  _emailController.clear();
-                  _passwordController.clear();
-                  // Navigate to homepage or show success message
-                  context.go('/homepage');
-                } on FirebaseAuthException catch (e) {
-                  switch (e.code) {
-                    case 'email-already-in-use':
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Email already in use.')),
-                      );
-                      break;
-                    default:
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error: ${e.message}')),
-                      );
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                    return 'Please enter a valid email.';
                   }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('An unexpected error occurred.')),
-                  );
-                } finally {
-                  setState(() {
-                    _isLoading = false; // Reset loading state
-                  });
-                }
-              },
-              child: Container(
-                height: 40,
-                width: 120,
-                decoration: containerButton,
-                child: Center(
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('Sign Up', style: buttonText),
+                  return null;
+                },
+              ),
+              const SizedBox(height: 15.0),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: _obscurePassword,
+                validator: (value) {
+                  if (value == null || value.length < 6) {
+                    return 'Password must be at least 6 characters.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20.0),
+              InkWell(
+                onTap: _isLoading ? null : _signUp,
+                child: Container(
+                  height: 40,
+                  width: 120,
+                  decoration: containerButton,
+                  child: Center(
+                    child: _isLoading
+                        ? const SizedBox(
+                      width: 25.0, // Set the desired width
+                      height: 25.0, // Set the desired height
+                      child: CircularProgressIndicator(color: Colors.white,),
+                         )
+                        : const Text('Sign Up', style: buttonText),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Already have an account?"),
-                TextButton(
-                  onPressed: () {
-                    context.go('/'); // Navigate back to login
-                  },
-                  child: const Text("Login"),
-                )
-              ],
-            ),
-          ],
+              const SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Already have an account? "),
+                  TextButton(
+                    onPressed: () {
+                      context.go('/'); // Navigate back to login
+                    },
+                    child: const Text("Login"),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _signUp() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await ref.read(authProvider.notifier).signUp(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      _emailController.clear();
+      _passwordController.clear();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Sign up successful! Navigating...')),
+      );
+      await Future.delayed(const Duration(seconds: 1)); // Delay for message visibility
+      context.go('/homepage'); // Navigate to homepage
+    } on FirebaseAuthException catch (e) {
+      _handleAuthException(e);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An unexpected error occurred.')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false; // Reset loading state
+      });
+    }
+  }
+
+  void _handleAuthException(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'email-already-in-use':
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Email already in use.')),
+        );
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.message}')),
+        );
+    }
   }
 
   @override

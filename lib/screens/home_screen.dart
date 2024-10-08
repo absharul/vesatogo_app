@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:vesatogo_app/provider/cartdata_provider.dart';
 import 'package:vesatogo_app/provider/products_provider.dart';
 import 'package:vesatogo_app/screens/order_history.dart';
+import 'package:vesatogo_app/screens/user_tab.dart';
 import 'package:vesatogo_app/widgets/products_widget.dart';
 import '../model/cart_model.dart';
+import '../provider/filter_provider.dart';
 import '../utils/utils.dart';
 
 class MyHomePage extends ConsumerStatefulWidget {
@@ -22,17 +24,31 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   final TextEditingController _searchController = TextEditingController();
 
   int _selectedIndex = 0;
+  String? _selectedCategory = "";
 
 
   final List<Widget> _widgetOptions = <Widget>[
-    Text('Home Screen'),
-    Text('Search Screen'),
+    const Text('Home Screen'),
     OrderHistoryPage(),
+    const UserTab(),
+  ];
+
+  final List<String> _categories = [
+    'Electronics',
+    'Jewelery',
+    "Men's Clothing",
+    "Women's Clothing",
   ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  void _onCategorySelected(String? category) {
+    setState(() {
+      _selectedCategory = category; // Update the selected category
     });
   }
 
@@ -56,6 +72,9 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(getProductsProvider);
+    // final products = _selectedCategory != null
+    //     ? ref.watch(filterProductProvider(_selectedCategory!)) // Watch filtered products
+    //     : ref.watch(getProductsProvider); // Watch all products
     final cartItems = ref.watch(cartProvider);
 
     return Scaffold(
@@ -86,7 +105,23 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             icon: const Icon(Icons.search_outlined, size: 30),
             color: Colors.white,
           ),
-          const SizedBox(width: 15.0),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_alt_outlined, size: 30, color: Colors.white),
+            itemBuilder: (BuildContext context) {
+              return _categories.map((String category) {
+                return PopupMenuItem<String>(
+                  value: category,
+                  child: Text(category),
+                );
+              }).toList()..add(
+                const PopupMenuItem<String>(
+                  value: null,
+                  child: Text('Show All'),
+                ),
+              );
+            },
+            onSelected: _onCategorySelected,
+          ),
           Stack(
             alignment: Alignment.center,
             children: [
@@ -128,7 +163,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
           const SizedBox(width: 15.0),
         ],
       ),
-
       body: _selectedIndex == 0
           ? products.when(
         data: (products) {
@@ -164,8 +198,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
         ),
       )
           : _selectedIndex == 1
-          ? const Center(child: Text('Search Screen'))
-          : OrderHistoryPage(),
+          ?  OrderHistoryPage()
+          :  const UserTab(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
@@ -176,12 +210,12 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag_outlined),
             label: 'Orders',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'User',
           ),
         ],
       ),
